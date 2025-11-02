@@ -86,7 +86,7 @@ Database schema is created/updated automatically via GORM migrations at startup.
 
    ```bash
    go mod download
-   go run ./...
+   go run main.go
    ```
 
    The server will listen on `http://localhost:1323`.
