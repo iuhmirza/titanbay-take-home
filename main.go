@@ -6,35 +6,47 @@ import (
 	"os"
 
 	"github.com/iuhmirza/titanbay-take-home/handlers"
+	"github.com/iuhmirza/titanbay-take-home/models"
 	"github.com/labstack/echo/v4"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func main() {
-	host := os.Getenv("HOST")
-	if host == "" {
-		log.Fatal("Environment variable HOST not set.")
+	port := os.Getenv("PORT")
+	if port == "" {
+		log.Fatal("Environment variable PORT not set.")
 	}
-	h := handlers.Handler{ }
+	db, err := connectToDB()
+	if err != nil {
+		log.Fatalf("Failed to connect to database: %v", err)
+	}
+	h := handlers.Handler{Db: db}
 	e := echo.New()
 	e.GET("/funds", func(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, echo.Map{})
 	})
 	e.POST("/funds", h.CreateFund)
-	e.Logger.Fatal(e.Start(host))
+	e.Logger.Fatal(e.Start(port))
 }
 
-func connectToDB() {
-	host := os.Getenv("DB_HOST")
-	if host == "" {
+type PGDB struct {
+	db *gorm.DB
+}
+
+func (pgdb *PGDB) AddFund(createFund models.CreateFund) (models.Fund, error) {
+	return models.Fund{}, nil
+}
+
+func connectToDB() (handlers.Database, error) {
+	dbUrl := os.Getenv("DB_URL")
+	if dbUrl == "" {
 		log.Fatal("Environment variable DB_HOST not set.")
 	}
-	user := os.Getenv("DB_USER")
-	if user == "" {
-		log.Fatal("Environment variable DB_USER not set.")
-	}
-	pass := os.Getenv("DB_PASS")
-	if pass == "" {
-		log.Fatal("Environment variable DB_PASS not set.")
-	}
 
+	db, err := gorm.Open(postgres.Open(dbUrl), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	return &PGDB{db}, nil
 }

@@ -1,0 +1,19 @@
+services:
+  api:
+    build: 
+      dockerfile: dev/Dockerfile
+      context: ..
+    ports: ["1323:1323"]
+    depends_on: ["database"]
+    environment:
+      ENVIRONMENT: "dev"
+      PORT: ":1323"
+      DB_URL: "host=database user=tb_user password=tb_pass dbname=tb_tbdb port=5432 sslmode=disable"
+  database:
+    image: "postgres:15"
+    environment:
+      POSTGRES_USER: tb_user
+      POSTGRES_PASSWORD: tb_pass
+      POSTGRES_DB: tb_tbdb
+      
+    

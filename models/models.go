@@ -39,5 +39,5 @@ type Fund struct {
 	VintageYear   uint   `json:"vintage_year"`
 	TargetSizeUsd uint   `json:"target_size_usd"`
 	Status        string `json:"status"`
-	Created_At    string `json:"created_at`
+	Created_At    string `json:"created_at"`
 }
