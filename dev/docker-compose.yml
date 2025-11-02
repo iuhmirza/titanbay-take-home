@@ -9,6 +9,7 @@ services:
       ENVIRONMENT: "dev"
       PORT: ":1323"
       DB_URL: "host=database user=tb_user password=tb_pass dbname=tb_tbdb port=5432 sslmode=disable"
+    restart: always
   database:
     image: "postgres:15"
     environment:

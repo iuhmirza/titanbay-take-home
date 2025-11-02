@@ -8,7 +8,5 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o api
-
-CMD [ "/app/api" ]
+CMD [ "go", "run", "/app/main.go" ]
 

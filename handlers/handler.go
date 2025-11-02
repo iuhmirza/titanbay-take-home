@@ -4,16 +4,13 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/iuhmirza/titanbay-take-home/database"
 	"github.com/iuhmirza/titanbay-take-home/models"
 	"github.com/labstack/echo/v4"
 )
 
 type Handler struct {
-	Db Database
-}
-
-type Database interface {
-	AddFund(models.CreateFund) (models.Fund, error)
+	Db database.Db
 }
 
 func JSONError(ctx echo.Context, httpStatus int, errorMessage string, err error) error {
@@ -33,10 +30,18 @@ func (h Handler) CreateFund(ctx echo.Context) error {
 		})
 	}
 	// add row to db funds table using gorm
-	fund, err := h.Db.AddFund(createFund)
+	fund, err := h.Db.CreateFund(createFund)
 	if err != nil {
 		// consider not exposing db error
 		return JSONError(ctx, http.StatusInternalServerError, "Failed to write fund to database", err)
 	}
 	return ctx.JSON(http.StatusCreated, fund)
+}
+
+func (h Handler) ReadFunds(ctx echo.Context) error {
+	funds, err := h.Db.ReadFunds()
+	if err != nil {
+		return JSONError(ctx, http.StatusInternalServerError, "Failed to read funds from database", err)
+	}
+	return ctx.JSON(http.StatusOK, funds)
 }
