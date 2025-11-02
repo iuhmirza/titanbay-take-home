@@ -14,7 +14,7 @@ import (
 func ConnectToDB() (Db, error) {
 	dbUrl := os.Getenv("DB_URL")
 	if dbUrl == "" {
-		log.Fatal("Environment variable DB_HOST not set.")
+		log.Fatal("Environment variable DB_URL not set.")
 	}
 
 	db, err := gorm.Open(postgres.Open(dbUrl), &gorm.Config{})
