@@ -106,7 +106,7 @@ Database schema is created/updated automatically via GORM migrations at startup.
 
 ## API Overview
 
-The service implements eight REST endpoints as described in the assignment brief and accompanying API specification (bundled as **API Spec.pdf**).
+The service implements eight REST endpoints as described in the assignment brief and accompanying API specification.
 
 | Method | Path                          | Description                        |
 | -----: | ----------------------------- | ---------------------------------- |
