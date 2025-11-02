@@ -1,82 +1,52 @@
 package handlers
 
 import (
-	"sync"
-	"time"
+	"bytes"
+	"encoding/json"
 
 	"github.com/google/uuid"
+	"github.com/iuhmirza/titanbay-take-home/database"
 	"github.com/iuhmirza/titanbay-take-home/models"
+	"gorm.io/gorm"
 )
 
-type MockDb struct {
-	db map[uint]models.Fund
-	mu sync.Mutex
+type notFoundDb struct {
+	delegate database.Db
 }
 
-func (mockDb *MockDb) CreateFund(createFund models.CreateFund) (models.Fund, error) {
-	fund := models.Fund{
-		Name:          createFund.Name,
-		VintageYear:   createFund.VintageYear,
-		TargetSizeUsd: createFund.TargetSizeUsd,
-		Status:        createFund.Status,
-	}
-	fund.ID = uuid.New()
-	fund.CreatedAt = time.Now()
-	mockDb.mu.Lock()
-	mockDb.db[uint(len(mockDb.db))] = fund
-	mockDb.mu.Unlock()
-	return fund, nil
+func (n notFoundDb) CreateFund(cf models.CreateFund) (models.Fund, error) {
+	return n.delegate.CreateFund(cf)
 }
 
-func (mockDb *MockDb) ReadFunds() ([]models.Fund, error) {
-	funds := make([]models.Fund, 0, len(mockDb.db))
-	mockDb.mu.Lock()
-	for _, v := range mockDb.db {
-		funds = append(funds, v)
-	}
-	mockDb.mu.Unlock()
-	return funds, nil
+func (n notFoundDb) ReadFunds() ([]models.Fund, error) { return n.delegate.ReadFunds() }
+
+func (n notFoundDb) UpdateFund(models.Fund) (models.Fund, error) {
+	return models.Fund{}, gorm.ErrRecordNotFound
 }
 
-var fundJSON = `
-{
-  "name": "Titanbay Growth Fund II",
-  "vintage_year": 2025,
-  "target_size_usd": 50000000000,
-  "status": "Fundraising"
+func (n notFoundDb) ReadFundByID(uuid.UUID) (models.Fund, error) {
+	return models.Fund{}, gorm.ErrRecordNotFound
 }
-`
 
-// func TestCreateFund(t *testing.T) {
-// 	e := echo.New()
-// 	req := httptest.NewRequest(http.MethodPost, "/funds", strings.NewReader(fundJSON))
-// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-// 	rec := httptest.NewRecorder()
-// 	ctx := e.NewContext(req, rec)
-// 	h := &Handler{Db: &MockDb{db: make(map[uint]models.Fund)}}
+func (n notFoundDb) CreateInvestor(ci models.CreateInvestor) (models.Investor, error) {
+	return n.delegate.CreateInvestor(ci)
+}
 
-// 	if err := h.CreateFund(ctx); err != nil {
-// 		t.Fatalf("CreateFund returned error: %v", err)
-// 	}
+func (n notFoundDb) ReadInvestors() ([]models.Investor, error) { return n.delegate.ReadInvestors() }
 
-// 	if rec.Code != http.StatusCreated {
-// 		t.Fatalf("got status %v, want %v; body = %v ", rec.Code, http.StatusCreated, rec.Body.String())
-// 	}
-// }
+func (n notFoundDb) CreateInvestment(ci models.CreateInvestment) (models.Investment, error) {
+	return n.delegate.CreateInvestment(ci)
+}
 
-// func TestCreateFundFail(t *testing.T) {
-// 	e := echo.New()
-// 	req := httptest.NewRequest(http.MethodPost, "/funds", strings.NewReader(fundJSON))
-// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-// 	rec := httptest.NewRecorder()
-// 	ctx := e.NewContext(req, rec)
-// 	h := &Handler{Db: &MockDb{db: make(map[uint]models.Fund)}}
+func (n notFoundDb) ReadInvestments(uuid.UUID) ([]models.Investment, error) {
+	return n.delegate.ReadInvestments(uuid.UUID{})
+}
 
-// 	if err := h.CreateFund(ctx); err != nil {
-// 		t.Fatalf("CreateFund returned error: %v", err)
-// 	}
+func marshal(v any) *bytes.Reader {
+	b, _ := json.Marshal(v)
+	return bytes.NewReader(b)
+}
 
-// 	if rec.Code != http.StatusCreated {
-// 		t.Fatalf("got status %v, want %v; body = %v ", rec.Code, http.StatusCreated, rec.Body.String())
-// 	}
+// func TestFail(t *testing.T) {
+// 	t.FailNow()
 // }
