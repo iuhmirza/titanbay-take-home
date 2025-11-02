@@ -23,5 +23,11 @@ func main() {
 	e := echo.New()
 	e.GET("/funds", h.ReadFunds)
 	e.POST("/funds", h.CreateFund)
+	e.PUT("/funds", h.UpdateFund)
+	e.GET("/funds/:fund_id", h.ReadFundByID)
+	e.GET("/investors", h.ReadInvestors)
+	e.POST("/investors", h.CreateInvestor)
+	e.GET("/funds/:fund_id/investments", h.ReadInvestments)
+	e.POST("/funds/:fund_id/investments", h.CreateInvestment)
 	e.Logger.Fatal(e.Start(port))
 }

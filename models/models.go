@@ -2,21 +2,21 @@ package models
 
 import (
 	"errors"
+	"fmt"
+	"net/mail"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
 )
 
-// Separate struct for creating funds allows for more flexibility at a later date.
 type CreateFund struct {
-	Name          string `json:"name"`
-	VintageYear   int   `json:"vintage_year"`
-	TargetSizeUsd decimal.Decimal   `json:"target_size_usd"`
-	Status        string `json:"status"`
+	Name          string          `json:"name"`
+	VintageYear   int             `json:"vintage_year"`
+	TargetSizeUsd decimal.Decimal `json:"target_size_usd"`
+	Status        string          `json:"status"`
 }
 
-// consider validating all errors instead of returning on first error
 func (fund *CreateFund) Validate() error {
 	if fund.Name == "" {
 		return errors.New("name is required")
@@ -28,7 +28,7 @@ func (fund *CreateFund) Validate() error {
 		return errors.New("vintage_year must be less than 2100")
 	}
 	if fund.TargetSizeUsd.LessThan(decimal.NewFromInt(1_000_000)) {
-		return errors.New("target_size_usd must be greater than 1_000_000")
+		return errors.New("target_size_usd must be greater than or equal to 1,000,000.00")
 	}
 
 	if fund.Status == "" {
@@ -41,6 +41,71 @@ func (fund *CreateFund) Validate() error {
 
 	return nil
 }
+
+type CreateInvestor struct {
+	Name         string `json:"name"`
+	InvestorType string `json:"investor_type"`
+	Email        string `json:"email"`
+}
+
+func (investor *CreateInvestor) Validate() error {
+	if investor.Name == "" {
+		return errors.New("name is required")
+	}
+	if investor.InvestorType == "" {
+		return errors.New("investor_type is required")
+	}
+	if
+	investor.InvestorType != "Individual" &&
+	investor.InvestorType != "Institution" &&
+	investor.InvestorType != "Family Office" {
+		return errors.New("investor_type must be either 'Individual', 'Institution' or 'Family Office'")
+	}
+	if investor.Email == "" {
+		return errors.New("email is required")
+	}
+	if _, err := mail.ParseAddress(investor.Email); err != nil {
+		return fmt.Errorf("email is invalid: %w", err)
+	}
+	
+	return nil
+}
+
+type CreateInvestment struct {
+	InvestorID uuid.UUID `json:"investor_id"`
+	AmountUsd decimal.Decimal `json:"amount_usd"`
+	InvestmentDate string `json:"investment_date"`
+	FundID uuid.UUID `json:"-"`
+}
+
+func (investment *CreateInvestment) Validate() error {
+	if err := uuid.Validate(investment.InvestorID.String()); err != nil {
+		return fmt.Errorf("invalid uuid for investor_id: %w", err)
+	}
+	if err := uuid.Validate(investment.FundID.String()); err != nil {
+		return fmt.Errorf("invalid uuid for fund_id: %w", err)
+	}
+	if investment.AmountUsd.LessThan(decimal.NewFromInt(1)) {
+		return errors.New("amount_usd must be greater than 1")
+	}
+	if investment.InvestmentDate == "" {
+		return errors.New("investment_date is required")
+	}
+	
+	ti, err := time.Parse("2006-01-02", investment.InvestmentDate)
+	if err != nil {
+		return errors.New("investment_date is invalid, use 'yyyy-mm-dd'")
+	}
+	year, _, _ := ti.Date()
+	if year <= 1900 {
+		return errors.New("year of investement_date must be greater than 1900")
+	}
+	if year >= 2100 {
+		return errors.New("year of investement_date must be less than 2100")
+	} 
+	return nil
+}
+
 
 type Fund struct {
 	ID            uuid.UUID       `json:"id" gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
@@ -67,7 +132,7 @@ type Investment struct {
 	FundID         uuid.UUID       `json:"fund_id" gorm:"type:uuid;not null;index"`
 	AmountUsd      decimal.Decimal `json:"amount_usd" gorm:"type:numeric(20,2);not null;check:amount_usd_nonneg,amount_usd >= 0"`
 	CreatedAt      time.Time       `json:"created_at"`
-	InvestmentDate time.Time       `json:"investment_date" gorm:"type:date;not null"`
+	InvestmentDate string       `json:"investment_date" gorm:"type:date;not null"`
 	Fund           Fund            `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 	Investor       Investor        `json:"-" gorm:"constraint:OnUpdate:CASCADE,OnDelete:RESTRICT;"`
 }

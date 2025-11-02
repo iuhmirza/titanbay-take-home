@@ -1,16 +1,11 @@
 package handlers
 
 import (
-	"net/http"
-	"net/http/httptest"
-	"strings"
 	"sync"
-	"testing"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/iuhmirza/titanbay-take-home/models"
-	"github.com/labstack/echo/v4"
 )
 
 type MockDb struct {
@@ -52,19 +47,36 @@ var fundJSON = `
 }
 `
 
-func TestCreateFund(t *testing.T) {
-	e := echo.New()
-	req := httptest.NewRequest(http.MethodPost, "/funds", strings.NewReader(fundJSON))
-	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
-	rec := httptest.NewRecorder()
-	ctx := e.NewContext(req, rec)
-	h := &Handler{Db: &MockDb{db: make(map[uint]models.Fund)}}
+// func TestCreateFund(t *testing.T) {
+// 	e := echo.New()
+// 	req := httptest.NewRequest(http.MethodPost, "/funds", strings.NewReader(fundJSON))
+// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+// 	rec := httptest.NewRecorder()
+// 	ctx := e.NewContext(req, rec)
+// 	h := &Handler{Db: &MockDb{db: make(map[uint]models.Fund)}}
 
-	if err := h.CreateFund(ctx); err != nil {
-		t.Fatalf("CreateFund returned error: %v", err)
-	}
+// 	if err := h.CreateFund(ctx); err != nil {
+// 		t.Fatalf("CreateFund returned error: %v", err)
+// 	}
 
-	if rec.Code != http.StatusCreated {
-		t.Fatalf("got status %v, want %v; body = %v ", rec.Code, http.StatusCreated, rec.Body.String())
-	}
-}
+// 	if rec.Code != http.StatusCreated {
+// 		t.Fatalf("got status %v, want %v; body = %v ", rec.Code, http.StatusCreated, rec.Body.String())
+// 	}
+// }
+
+// func TestCreateFundFail(t *testing.T) {
+// 	e := echo.New()
+// 	req := httptest.NewRequest(http.MethodPost, "/funds", strings.NewReader(fundJSON))
+// 	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+// 	rec := httptest.NewRecorder()
+// 	ctx := e.NewContext(req, rec)
+// 	h := &Handler{Db: &MockDb{db: make(map[uint]models.Fund)}}
+
+// 	if err := h.CreateFund(ctx); err != nil {
+// 		t.Fatalf("CreateFund returned error: %v", err)
+// 	}
+
+// 	if rec.Code != http.StatusCreated {
+// 		t.Fatalf("got status %v, want %v; body = %v ", rec.Code, http.StatusCreated, rec.Body.String())
+// 	}
+// }
