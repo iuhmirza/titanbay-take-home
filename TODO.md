@@ -1,5 +1,7 @@
 # TODO
+
 1. Setup GORM/Postgres
 2. Add unit and integration tests
-2. Consider using decimal library over uint
-3. Add remaining models and endpoints
+3. Add logging
+4. Consider using decimal library over uint
+5. Add remaining models and endpoints

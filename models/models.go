@@ -1,13 +1,13 @@
-package main
+package models
 
 import "errors"
 
 // Separate struct for creating funds allows for more flexibility at a later date.
 type CreateFund struct {
-	Name          string
-	VintageYear   uint
-	TargetSizeUsd uint
-	Status        string
+	Name          string `json:"name"`
+	VintageYear   uint   `json:"vintage_year"`
+	TargetSizeUsd uint   `json:"target_size_usd"`
+	Status        string `json:"status"`
 }
 
 // consider validating all errors instead of returning on first error
@@ -18,8 +18,8 @@ func (fund *CreateFund) Validate() error {
 	if fund.VintageYear < 1900 {
 		return errors.New("vintage_year must be greater than 1900")
 	}
-	if fund.TargetSizeUsd > 1_000_000_00 {
-		return errors.New("target_size_usd must be greater than 10,000,000 cents (use cents instead of dollars)")
+	if fund.TargetSizeUsd < 1_000_000_00 {
+		return errors.New("target_size_usd must be greater than 100,000,000 cents (use cents instead of dollars)")
 	}
 
 	if fund.Status == "" {
@@ -34,10 +34,10 @@ func (fund *CreateFund) Validate() error {
 }
 
 type Fund struct {
-	Id            string
-	Name          string
-	VintageYear   uint
-	TargetSizeUsd uint
-	Status        string
-	Created_At    string
+	Id            string `json:"id"`
+	Name          string `json:"name"`
+	VintageYear   uint   `json:"vintage_year"`
+	TargetSizeUsd uint   `json:"target_size_usd"`
+	Status        string `json:"status"`
+	Created_At    string `json:"created_at`
 }
