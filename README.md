@@ -1,6 +1,6 @@
 # Titanbay Take-Home — Backend Service
 
-This repository contains a compact backend service for managing **funds**, **investors**, and **investments (commitments)**. The service exposes a small REST API backed by PostgreSQL and is designed to run locally with minimal setup.
+This repository contains a compact backend service for managing **funds**, **investors**, and **investments**. The service exposes a small REST API backed by PostgreSQL and is designed to run locally with minimal setup.
 
 ---
 
